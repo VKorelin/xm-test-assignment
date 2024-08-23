@@ -10,6 +10,7 @@ import (
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type config struct {
@@ -70,6 +71,8 @@ func (a App) Run() error {
 			getUnaryInterceptorWithLogger(validation.Interceptor),
 		),
 	)
+
+	reflection.Register(grpcServer)
 
 	a.logger.Info("Start server listening", zap.String("address", lis.Addr().String()))
 
