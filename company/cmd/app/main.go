@@ -1,7 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"common/logger"
+	grpcapp "xm/company/internal/pkg/app/grpc"
+)
 
 func main() {
-	fmt.Println("hello world")
+	logger := logger.InitLogger()
+	defer logger.Sync()
+
+	grpcApp := grpcapp.NewApp(logger)
+
+	err := grpcApp.Run()
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
 }
