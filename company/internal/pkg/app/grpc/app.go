@@ -1,9 +1,15 @@
 package grpc
 
 import (
+	"common/mw/logging"
+	panicInterceptor "common/mw/panic"
+	"common/mw/validation"
+	"context"
 	"flag"
+	"net"
 
 	"go.uber.org/zap"
+	"google.golang.org/grpc"
 )
 
 type config struct {
@@ -30,6 +36,8 @@ func newConfigFromFlags() config {
 	return result
 }
 
+type unaryInterceptorWithLogger func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler, logger *zap.Logger) (resp any, err error)
+
 type App struct {
 	config config
 	logger *zap.Logger
@@ -43,5 +51,31 @@ func NewApp(logger *zap.Logger) *App {
 }
 
 func (a App) Run() error {
+
+	lis, err := net.Listen("tcp", a.config.port)
+	if err != nil {
+		a.logger.Fatal("failed to listen tcp", zap.String("port", a.config.port), zap.Error(err))
+	}
+
+	getUnaryInterceptorWithLogger := func(interceptor unaryInterceptorWithLogger) grpc.UnaryServerInterceptor {
+		return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
+			return interceptor(ctx, req, info, handler, a.logger)
+		}
+	}
+
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			getUnaryInterceptorWithLogger(panicInterceptor.Interceptor),
+			getUnaryInterceptorWithLogger(logging.Interceptor),
+			getUnaryInterceptorWithLogger(validation.Interceptor),
+		),
+	)
+
+	a.logger.Info("Start server listening", zap.String("address", lis.Addr().String()))
+
+	if err = grpcServer.Serve(lis); err != nil {
+		a.logger.Fatal("failed to serve", zap.Error(err))
+	}
+
 	return nil
 }
