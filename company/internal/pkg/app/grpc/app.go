@@ -7,6 +7,10 @@ import (
 	"context"
 	"flag"
 	"net"
+	"xm/company/internal/pkg/api/company"
+	"xm/company/internal/pkg/repository"
+	"xm/company/internal/pkg/services"
+	desc "xm/company/pkg/api/company/v1"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -51,6 +55,14 @@ func NewApp(logger *zap.Logger) *App {
 	}
 }
 
+func registerCompanyServer(grpcServer *grpc.Server) {
+	companyRepository := repository.NewOrderRepository()
+	fetchService := services.NewFetchCompanyService(companyRepository)
+
+	orderServer := company.NewOrderServerImpl(fetchService)
+	desc.RegisterCompanyServiceServer(grpcServer, orderServer)
+}
+
 func (a App) Run() error {
 
 	lis, err := net.Listen("tcp", a.config.port)
@@ -73,6 +85,8 @@ func (a App) Run() error {
 	)
 
 	reflection.Register(grpcServer)
+
+	registerCompanyServer(grpcServer)
 
 	a.logger.Info("Start server listening", zap.String("address", lis.Addr().String()))
 
