@@ -12,6 +12,7 @@ import (
 	"xm/company/internal/pkg/services"
 	desc "xm/company/pkg/api/company/v1"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -55,6 +56,21 @@ func NewApp(logger *zap.Logger) *App {
 	}
 }
 
+func initDbPool(databaseDSN string, logger *zap.Logger) *pgxpool.Pool {
+	ctx := context.Background()
+
+	dbpool, err := pgxpool.New(ctx, databaseDSN)
+	if err != nil {
+		logger.Fatal("Unable to create connection pool", zap.Error(err))
+	}
+
+	if err := dbpool.Ping(ctx); err != nil {
+		panic(err)
+	}
+
+	return dbpool
+}
+
 func registerCompanyServer(grpcServer *grpc.Server) {
 	companyRepository := repository.NewOrderRepository()
 	fetchService := services.NewFetchCompanyService(companyRepository)
@@ -64,6 +80,9 @@ func registerCompanyServer(grpcServer *grpc.Server) {
 }
 
 func (a App) Run() error {
+
+	dbpool := initDbPool(a.config.companyDSN, a.logger)
+	defer dbpool.Close()
 
 	lis, err := net.Listen("tcp", a.config.port)
 	if err != nil {
