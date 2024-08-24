@@ -4,7 +4,7 @@ import (
 	"context"
 	"xm/company/internal/pkg/models"
 
-	"github.com/google/uuid"
+	"github.com/gofrs/uuid"
 )
 
 type CompanyProvider interface {

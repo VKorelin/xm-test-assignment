@@ -1,7 +1,10 @@
 -- +goose Up
 -- +goose StatementBegin
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE companies (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(15) NOT NULL UNIQUE,
     description VARCHAR(3000),
     amount_of_employees INTEGER NOT NULL,

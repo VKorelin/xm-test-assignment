@@ -1,6 +1,6 @@
 package models
 
-import "github.com/google/uuid"
+import "github.com/gofrs/uuid"
 
 type CompanyType int
 

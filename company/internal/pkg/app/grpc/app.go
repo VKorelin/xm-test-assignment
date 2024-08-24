@@ -19,24 +19,24 @@ import (
 )
 
 type config struct {
-	port             string
-	companyDSN       string
-	orderStatusTopic string
-	brokers          string
+	port               string
+	companyDSN         string
+	companyStatusTopic string
+	brokers            string
 }
 
 func newConfigFromFlags() config {
 	const (
-		defaultPort             = ":50050"
-		defaultCompanyDSN       = "postgresql://postgres:password@company_db:5432/company"
-		defaultOrderStatusTopic = "company_status"
-		defaultBrokers          = "kafka-broker-1:9091,kafka-broker-2:9092,kafka-broker-3:9093"
+		defaultPort               = ":50050"
+		defaultCompanyDSN         = "postgresql://postgres:password@company_db:5432/company"
+		defaultCompanyStatusTopic = "company_status"
+		defaultBrokers            = "kafka-broker-1:9091,kafka-broker-2:9092,kafka-broker-3:9093"
 	)
 
 	result := config{}
 	flag.StringVar(&result.port, "port", defaultPort, "gRPC port, default: "+defaultPort)
 	flag.StringVar(&result.companyDSN, "companyDSN", defaultCompanyDSN, "company DSN, default: "+defaultCompanyDSN)
-	flag.StringVar(&result.orderStatusTopic, "orderStatusTopic", defaultOrderStatusTopic, "orderStatusTopic, default: "+defaultOrderStatusTopic)
+	flag.StringVar(&result.companyStatusTopic, "compnayStatusTopic", defaultCompanyStatusTopic, "companyStatusTopic, default: "+defaultCompanyStatusTopic)
 	flag.StringVar(&result.brokers, "brokers", defaultBrokers, "brokers, default: "+defaultBrokers)
 	flag.Parse()
 	return result
@@ -71,12 +71,15 @@ func initDbPool(databaseDSN string, logger *zap.Logger) *pgxpool.Pool {
 	return dbpool
 }
 
-func registerCompanyServer(grpcServer *grpc.Server) {
-	companyRepository := repository.NewOrderRepository()
-	fetchService := services.NewFetchCompanyService(companyRepository)
+func registerCompanyServer(grpcServer *grpc.Server, dbpool *pgxpool.Pool, logger *zap.Logger) {
+	storage := repository.NewCompanyStorage(dbpool)
+	companyRepository := repository.NewCompanyRepository(storage, logger)
 
-	orderServer := company.NewOrderServerImpl(fetchService)
-	desc.RegisterCompanyServiceServer(grpcServer, orderServer)
+	fetchService := services.NewFetchCompanyService(companyRepository)
+	createService := services.NewCreateCompanyService(companyRepository)
+
+	companyServer := company.NewCompanyServerImpl(fetchService, createService)
+	desc.RegisterCompanyServiceServer(grpcServer, companyServer)
 }
 
 func (a App) Run() error {
@@ -105,7 +108,7 @@ func (a App) Run() error {
 
 	reflection.Register(grpcServer)
 
-	registerCompanyServer(grpcServer)
+	registerCompanyServer(grpcServer, dbpool, a.logger)
 
 	a.logger.Info("Start server listening", zap.String("address", lis.Addr().String()))
 
