@@ -291,6 +291,137 @@ var _ interface {
 	ErrorName() string
 } = GetCompanyResponseValidationError{}
 
+// Validate checks the field values on PatchCompanyRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *PatchCompanyRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on PatchCompanyRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// PatchCompanyRequestMultiError, or nil if none found.
+func (m *PatchCompanyRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *PatchCompanyRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetCompany()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, PatchCompanyRequestValidationError{
+					field:  "Company",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, PatchCompanyRequestValidationError{
+					field:  "Company",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCompany()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return PatchCompanyRequestValidationError{
+				field:  "Company",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return PatchCompanyRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// PatchCompanyRequestMultiError is an error wrapping multiple validation
+// errors returned by PatchCompanyRequest.ValidateAll() if the designated
+// constraints aren't met.
+type PatchCompanyRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m PatchCompanyRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m PatchCompanyRequestMultiError) AllErrors() []error { return m }
+
+// PatchCompanyRequestValidationError is the validation error returned by
+// PatchCompanyRequest.Validate if the designated constraints aren't met.
+type PatchCompanyRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PatchCompanyRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PatchCompanyRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PatchCompanyRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PatchCompanyRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PatchCompanyRequestValidationError) ErrorName() string {
+	return "PatchCompanyRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e PatchCompanyRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPatchCompanyRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PatchCompanyRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PatchCompanyRequestValidationError{}
+
 // Validate checks the field values on Company with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -312,20 +443,74 @@ func (m *Company) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	if err := m._validateUuid(m.GetId()); err != nil {
+		err = CompanyValidationError{
+			field:  "Id",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Name
+	if l := utf8.RuneCountInString(m.GetName()); l < 1 || l > 15 {
+		err := CompanyValidationError{
+			field:  "Name",
+			reason: "value length must be between 1 and 15 runes, inclusive",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Description
+	if utf8.RuneCountInString(m.GetDescription()) > 3000 {
+		err := CompanyValidationError{
+			field:  "Description",
+			reason: "value length must be at most 3000 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for AmountOfEmployees
+	if m.GetAmountOfEmployees() <= 0 {
+		err := CompanyValidationError{
+			field:  "AmountOfEmployees",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Registered
 
-	// no validation rules for Type
+	if _, ok := CompanyType_name[int32(m.GetType())]; !ok {
+		err := CompanyValidationError{
+			field:  "Type",
+			reason: "value must be one of the defined enum values",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return CompanyMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *Company) _validateUuid(uuid string) error {
+	if matched := _company_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil

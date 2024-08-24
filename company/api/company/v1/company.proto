@@ -9,6 +9,7 @@ option go_package = "xm/company/internal/pkg/api/company/v1;company";
 
 service CompanyService {
     rpc Get(GetCompanyRequest) returns (GetCompanyResponse) { }
+    rpc Patch(PatchCompanyRequest) returns (google.protobuf.Empty) { }
 }
 
 message GetCompanyRequest {
@@ -19,13 +20,17 @@ message GetCompanyResponse {
     Company company = 1;
 }
 
+message PatchCompanyRequest {
+    Company company = 1;
+}
+
 message Company {
     string id = 1 [(validate.rules).string = {uuid: true}];
-    string name = 2;
-    string description = 3;
-    int32 amount_of_employees = 4;
+    string name = 2 [(validate.rules).string = {min_len: 1, max_len: 15}];
+    string description = 3 [(validate.rules).string = {max_len: 3000}];
+    uint32 amount_of_employees = 4 [(validate.rules).uint32.gt = 0];
     bool registered = 5;
-    CompanyType type = 6;
+    CompanyType type = 6 [(validate.rules).enum = {defined_only: true}];
 }
 
 enum CompanyType {

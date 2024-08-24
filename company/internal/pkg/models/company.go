@@ -15,7 +15,7 @@ type Company struct {
 	Id                uuid.UUID
 	Name              string
 	Description       string
-	AmountOfEmployees int
+	AmountOfEmployees uint32
 	Registered        bool
 	Type              CompanyType
 }

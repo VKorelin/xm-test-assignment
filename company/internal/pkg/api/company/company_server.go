@@ -6,6 +6,7 @@ import (
 	servicepb "xm/company/pkg/api/company/v1"
 
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type FetchServie interface {
@@ -39,9 +40,14 @@ func (s *CompanyServiceServerImpl) Get(ctx context.Context, request *servicepb.G
 			Id:                company.Id.String(),
 			Name:              company.Name,
 			Description:       company.Description,
-			AmountOfEmployees: int32(company.AmountOfEmployees),
+			AmountOfEmployees: company.AmountOfEmployees,
 			Registered:        company.Registered,
 			Type:              servicepb.CompanyType(company.Type),
 		},
 	}, nil
+}
+
+func (s *CompanyServiceServerImpl) Patch(ctx context.Context, request *servicepb.PatchCompanyRequest) (*emptypb.Empty, error) {
+
+	return &emptypb.Empty{}, nil
 }

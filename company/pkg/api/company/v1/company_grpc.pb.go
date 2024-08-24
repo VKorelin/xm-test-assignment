@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,7 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CompanyService_Get_FullMethodName = "/xm.api.company.v1.CompanyService/Get"
+	CompanyService_Get_FullMethodName   = "/xm.api.company.v1.CompanyService/Get"
+	CompanyService_Patch_FullMethodName = "/xm.api.company.v1.CompanyService/Patch"
 )
 
 // CompanyServiceClient is the client API for CompanyService service.
@@ -27,6 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CompanyServiceClient interface {
 	Get(ctx context.Context, in *GetCompanyRequest, opts ...grpc.CallOption) (*GetCompanyResponse, error)
+	Patch(ctx context.Context, in *PatchCompanyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type companyServiceClient struct {
@@ -47,11 +50,22 @@ func (c *companyServiceClient) Get(ctx context.Context, in *GetCompanyRequest, o
 	return out, nil
 }
 
+func (c *companyServiceClient) Patch(ctx context.Context, in *PatchCompanyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, CompanyService_Patch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CompanyServiceServer is the server API for CompanyService service.
 // All implementations must embed UnimplementedCompanyServiceServer
 // for forward compatibility.
 type CompanyServiceServer interface {
 	Get(context.Context, *GetCompanyRequest) (*GetCompanyResponse, error)
+	Patch(context.Context, *PatchCompanyRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedCompanyServiceServer()
 }
 
@@ -64,6 +78,9 @@ type UnimplementedCompanyServiceServer struct{}
 
 func (UnimplementedCompanyServiceServer) Get(context.Context, *GetCompanyRequest) (*GetCompanyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedCompanyServiceServer) Patch(context.Context, *PatchCompanyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Patch not implemented")
 }
 func (UnimplementedCompanyServiceServer) mustEmbedUnimplementedCompanyServiceServer() {}
 func (UnimplementedCompanyServiceServer) testEmbeddedByValue()                        {}
@@ -104,6 +121,24 @@ func _CompanyService_Get_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CompanyService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PatchCompanyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CompanyServiceServer).Patch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CompanyService_Patch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CompanyServiceServer).Patch(ctx, req.(*PatchCompanyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CompanyService_ServiceDesc is the grpc.ServiceDesc for CompanyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +149,10 @@ var CompanyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _CompanyService_Get_Handler,
+		},
+		{
+			MethodName: "Patch",
+			Handler:    _CompanyService_Patch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
