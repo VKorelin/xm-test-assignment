@@ -29,7 +29,10 @@ func (s *CompanyServiceServerImpl) Get(ctx context.Context, request *servicepb.G
 
 	companyId, _ := uuid.Parse(request.CompanyId)
 
-	company, _ := s.fetchService.Fetch(ctx, companyId)
+	company, err := s.fetchService.Fetch(ctx, companyId)
+	if err != nil {
+		return nil, NotFound(err)
+	}
 
 	return &servicepb.GetCompanyResponse{
 		Company: &servicepb.Company{

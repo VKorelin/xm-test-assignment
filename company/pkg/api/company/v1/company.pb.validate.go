@@ -35,6 +35,9 @@ var (
 	_ = sort.Sort
 )
 
+// define the regex for a UUID once up-front
+var _company_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on GetCompanyRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -57,10 +60,28 @@ func (m *GetCompanyRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for CompanyId
+	if err := m._validateUuid(m.GetCompanyId()); err != nil {
+		err = GetCompanyRequestValidationError{
+			field:  "CompanyId",
+			reason: "value must be a valid UUID",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GetCompanyRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+func (m *GetCompanyRequest) _validateUuid(uuid string) error {
+	if matched := _company_uuidPattern.MatchString(uuid); !matched {
+		return errors.New("invalid uuid format")
 	}
 
 	return nil

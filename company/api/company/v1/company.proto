@@ -12,7 +12,7 @@ service CompanyService {
 }
 
 message GetCompanyRequest {
-    string company_id = 1;
+    string company_id = 1 [(validate.rules).string = {uuid: true}];
 }
 
 message GetCompanyResponse {
@@ -20,7 +20,7 @@ message GetCompanyResponse {
 }
 
 message Company {
-    string id = 1;
+    string id = 1 [(validate.rules).string = {uuid: true}];
     string name = 2;
     string description = 3;
     int32 amount_of_employees = 4;
