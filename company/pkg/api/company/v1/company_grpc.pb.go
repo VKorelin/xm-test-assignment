@@ -20,8 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CompanyService_Get_FullMethodName   = "/xm.api.company.v1.CompanyService/Get"
-	CompanyService_Patch_FullMethodName = "/xm.api.company.v1.CompanyService/Patch"
+	CompanyService_Get_FullMethodName    = "/xm.api.company.v1.CompanyService/Get"
+	CompanyService_Patch_FullMethodName  = "/xm.api.company.v1.CompanyService/Patch"
+	CompanyService_Delete_FullMethodName = "/xm.api.company.v1.CompanyService/Delete"
+	CompanyService_Create_FullMethodName = "/xm.api.company.v1.CompanyService/Create"
 )
 
 // CompanyServiceClient is the client API for CompanyService service.
@@ -30,6 +32,8 @@ const (
 type CompanyServiceClient interface {
 	Get(ctx context.Context, in *GetCompanyRequest, opts ...grpc.CallOption) (*GetCompanyResponse, error)
 	Patch(ctx context.Context, in *PatchCompanyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Delete(ctx context.Context, in *DeleteCompanyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Create(ctx context.Context, in *CreateCompanyRequest, opts ...grpc.CallOption) (*CreateCompanyResponse, error)
 }
 
 type companyServiceClient struct {
@@ -60,12 +64,34 @@ func (c *companyServiceClient) Patch(ctx context.Context, in *PatchCompanyReques
 	return out, nil
 }
 
+func (c *companyServiceClient) Delete(ctx context.Context, in *DeleteCompanyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, CompanyService_Delete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *companyServiceClient) Create(ctx context.Context, in *CreateCompanyRequest, opts ...grpc.CallOption) (*CreateCompanyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateCompanyResponse)
+	err := c.cc.Invoke(ctx, CompanyService_Create_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CompanyServiceServer is the server API for CompanyService service.
 // All implementations must embed UnimplementedCompanyServiceServer
 // for forward compatibility.
 type CompanyServiceServer interface {
 	Get(context.Context, *GetCompanyRequest) (*GetCompanyResponse, error)
 	Patch(context.Context, *PatchCompanyRequest) (*emptypb.Empty, error)
+	Delete(context.Context, *DeleteCompanyRequest) (*emptypb.Empty, error)
+	Create(context.Context, *CreateCompanyRequest) (*CreateCompanyResponse, error)
 	mustEmbedUnimplementedCompanyServiceServer()
 }
 
@@ -81,6 +107,12 @@ func (UnimplementedCompanyServiceServer) Get(context.Context, *GetCompanyRequest
 }
 func (UnimplementedCompanyServiceServer) Patch(context.Context, *PatchCompanyRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Patch not implemented")
+}
+func (UnimplementedCompanyServiceServer) Delete(context.Context, *DeleteCompanyRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (UnimplementedCompanyServiceServer) Create(context.Context, *CreateCompanyRequest) (*CreateCompanyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 func (UnimplementedCompanyServiceServer) mustEmbedUnimplementedCompanyServiceServer() {}
 func (UnimplementedCompanyServiceServer) testEmbeddedByValue()                        {}
@@ -139,6 +171,42 @@ func _CompanyService_Patch_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CompanyService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCompanyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CompanyServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CompanyService_Delete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CompanyServiceServer).Delete(ctx, req.(*DeleteCompanyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CompanyService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCompanyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CompanyServiceServer).Create(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CompanyService_Create_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CompanyServiceServer).Create(ctx, req.(*CreateCompanyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CompanyService_ServiceDesc is the grpc.ServiceDesc for CompanyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -153,6 +221,14 @@ var CompanyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Patch",
 			Handler:    _CompanyService_Patch_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _CompanyService_Delete_Handler,
+		},
+		{
+			MethodName: "Create",
+			Handler:    _CompanyService_Create_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

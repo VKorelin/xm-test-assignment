@@ -10,6 +10,8 @@ option go_package = "xm/company/internal/pkg/api/company/v1;company";
 service CompanyService {
     rpc Get(GetCompanyRequest) returns (GetCompanyResponse) { }
     rpc Patch(PatchCompanyRequest) returns (google.protobuf.Empty) { }
+    rpc Delete(DeleteCompanyRequest) returns (google.protobuf.Empty) { }
+    rpc Create(CreateCompanyRequest) returns (CreateCompanyResponse) { }
 }
 
 message GetCompanyRequest {
@@ -21,6 +23,22 @@ message GetCompanyResponse {
 }
 
 message PatchCompanyRequest {
+    Company company = 1 [(validate.rules).message = {required: true}];
+}
+
+message DeleteCompanyRequest {
+    string company_id = 1 [(validate.rules).string = {uuid: true}];
+}
+
+message CreateCompanyRequest {
+    string name = 1 [(validate.rules).string = {min_len: 1, max_len: 15}];
+    string description = 2 [(validate.rules).string = {max_len: 3000}];
+    uint32 amount_of_employees = 3 [(validate.rules).uint32.gt = 0];
+    bool registered = 4;
+    CompanyType type = 5 [(validate.rules).enum = {defined_only: true}];
+}
+
+message CreateCompanyResponse {
     Company company = 1;
 }
 

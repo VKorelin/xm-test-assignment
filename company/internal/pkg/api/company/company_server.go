@@ -51,3 +51,13 @@ func (s *CompanyServiceServerImpl) Patch(ctx context.Context, request *servicepb
 
 	return &emptypb.Empty{}, nil
 }
+
+func (s *CompanyServiceServerImpl) Delete(ctx context.Context, request *servicepb.DeleteCompanyRequest) (*emptypb.Empty, error) {
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s *CompanyServiceServerImpl) Create(ctx context.Context, request *servicepb.CreateCompanyRequest) (*servicepb.CreateCompanyResponse, error) {
+
+	return nil, nil
+}
