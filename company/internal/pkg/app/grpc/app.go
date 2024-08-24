@@ -77,8 +77,10 @@ func registerCompanyServer(grpcServer *grpc.Server, dbpool *pgxpool.Pool, logger
 
 	fetchService := services.NewFetchCompanyService(companyRepository)
 	createService := services.NewCreateCompanyService(companyRepository)
+	updateService := services.NewUpdateCompanyService(companyRepository)
+	deleteService := services.NewDeleteCompanyService(companyRepository)
 
-	companyServer := company.NewCompanyServerImpl(fetchService, createService)
+	companyServer := company.NewCompanyServerImpl(fetchService, createService, updateService, deleteService)
 	desc.RegisterCompanyServiceServer(grpcServer, companyServer)
 }
 

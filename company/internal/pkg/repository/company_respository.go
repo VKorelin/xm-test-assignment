@@ -81,3 +81,38 @@ func (r *CompanyRepository) Create(ctx context.Context, newCompany *models.Compa
 		Type:              newCompany.Type,
 	}, nil
 }
+
+func (r *CompanyRepository) Update(ctx context.Context, company *models.Company) error {
+
+	context := r.storage.CreateDbContext(ctx)
+
+	err := context.UpdateCompany(ctx, dbcontext.UpdateCompanyParams{
+		Name: company.Name,
+		Description: pgtype.Text{
+			String: company.Description,
+			Valid:  true},
+		AmountOfEmployees: int32(company.AmountOfEmployees),
+		Registered:        company.Registered,
+		Type:              int32(company.Type),
+		ID:                converters.ConvertToPgUuid(company.Id),
+	})
+
+	if err != nil {
+		r.logger.Error("Could not update company", zap.String("ID", company.Id.String()), zap.Error(err))
+	}
+
+	return err
+}
+
+func (r *CompanyRepository) Delete(ctx context.Context, companyId uuid.UUID) error {
+
+	context := r.storage.CreateDbContext(ctx)
+
+	err := context.DeleteCompany(ctx, converters.ConvertToPgUuid(companyId))
+
+	if err != nil {
+		r.logger.Error("Could not delete company", zap.String("ID", companyId.String()), zap.Error(err))
+	}
+
+	return err
+}
