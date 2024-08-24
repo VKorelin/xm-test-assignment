@@ -85,3 +85,8 @@ generate: .bin-deps .vendor-proto .protoc-generate
 
 .PHONY: fast-generate
 fast-generate: .protoc-generate
+
+#migrations:
+.PHONY: migrate
+migrate:
+	goose -dir migrations postgres postgresql://postgres:password@localhost:5433/company up

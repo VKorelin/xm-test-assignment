@@ -1,0 +1,12 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "internal/pkg/repository/db_context/queries.sql"
+    schema: "migrations"
+    gen:
+      go:
+        package: "dbcontext"
+        sql_package: "pgx/v5"
+        out: "internal/pkg/repository/db_context"
+        emit_interface: true
+        omit_unused_structs: true
