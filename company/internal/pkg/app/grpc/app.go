@@ -69,7 +69,7 @@ func (a *App) Run() error {
 
 	reflection.Register(grpcServer)
 
-	producer, err := kafka.NewAsyncProducer(strings.Split(a.config.brokers, ","))
+	producer, err := kafka.NewAsyncProducer(strings.Split(a.config.brokers, ","), a.logger)
 	if err != nil {
 		a.logger.Fatal(err.Error())
 	}

@@ -1,14 +1,14 @@
 package kafka
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/IBM/sarama"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
-func NewAsyncProducer(brokers []string, opts ...Option) (sarama.AsyncProducer, error) {
+func NewAsyncProducer(brokers []string, logger *zap.Logger, opts ...Option) (sarama.AsyncProducer, error) {
 	config := prepareProducerSaramaConfig(opts...)
 
 	var asyncProducer sarama.AsyncProducer
@@ -30,13 +30,13 @@ func NewAsyncProducer(brokers []string, opts ...Option) (sarama.AsyncProducer, e
 
 	go func() {
 		for err := range asyncProducer.Errors() {
-			fmt.Println(err.Error())
+			logger.Error(err.Error())
 		}
 	}()
 
 	go func() {
 		for msg := range asyncProducer.Successes() {
-			fmt.Println("Async success with key", msg.Key)
+			logger.Info("Message was produced", zap.String("Topic", msg.Topic))
 		}
 	}()
 
