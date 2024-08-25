@@ -10,11 +10,19 @@ generate-proto:
 sqlc-generate:
 	cd company && sqlc generate
 
+init-db:
+	docker compose up -d --build --remove-orphans company_db
+
 run: 
 	docker-compose up -d --force-recreate --remove-orphans --build
 
 migrate:
 	cd company && make migrate
+
+start: init-db build run migrate
+
+stop:
+	docker compose down
 
 #UTILS
 

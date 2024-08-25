@@ -27,6 +27,8 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5433:5432"
+    volumes:
+      - ./.docker/postgresql/loms/data:/var/lib/postgresql/data
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     container_name: zookeeper
