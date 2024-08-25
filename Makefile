@@ -1,6 +1,3 @@
-docker-build:
-	docker build -t company-app .
-
 build: generate-proto
 	cd company && GOOS=linux GOARCH=amd64 make build
 
