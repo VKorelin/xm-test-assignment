@@ -83,9 +83,6 @@ PHONY: .protoc-generate
 PHONY: generate
 generate: .bin-deps .vendor-proto .protoc-generate
 
-.PHONY: fast-generate
-fast-generate: .protoc-generate
-
 #migrations:
 .PHONY: migrate
 migrate:
