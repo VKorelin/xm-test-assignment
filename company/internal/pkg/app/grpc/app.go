@@ -13,6 +13,7 @@ import (
 	"xm/company/internal/pkg/repository"
 	"xm/company/internal/pkg/services"
 	kafkaNotification "xm/company/internal/pkg/services/notifications/kafka"
+	"xm/company/middleware/authorization"
 	desc "xm/company/pkg/api/company/v1"
 
 	"github.com/IBM/sarama"
@@ -64,6 +65,7 @@ func (a *App) Run() error {
 			getUnaryInterceptorWithLogger(panicInterceptor.Interceptor),
 			getUnaryInterceptorWithLogger(logging.Interceptor),
 			getUnaryInterceptorWithLogger(validation.Interceptor),
+			getUnaryInterceptorWithLogger(authorization.Interceptor),
 		),
 	)
 
