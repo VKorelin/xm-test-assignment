@@ -1,10 +1,10 @@
+docker-build:
+	docker build -t company-app .
+
 build-all: generate-proto build-projects
 
 build-projects: sqlc-generate
 	cd company && GOOS=linux GOARCH=amd64 make build
-
-run-containers:
-	docker-compose up -d --force-recreate --remove-orphans --build
 
 precommit: generate-proto
 	cd company && make precommit
@@ -12,13 +12,14 @@ precommit: generate-proto
 generate-proto:
 	cd company && make generate
 
-migrate:
-	cd company && make migrate
-
 sqlc-generate:
 	cd company && sqlc generate
 
-run-all: build-all run-containers migrate
+run-all: 
+	docker-compose up -d --force-recreate --remove-orphans --build
+
+migrate:
+	cd company && make migrate
 
 #UTILS
 
