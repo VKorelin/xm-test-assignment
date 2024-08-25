@@ -1,9 +1,9 @@
 package main
 
 import (
-	"common/logger"
 	"fmt"
 	"os"
+	"xm/company/common/logger"
 	grpcapp "xm/company/internal/pkg/app/grpc"
 )
 

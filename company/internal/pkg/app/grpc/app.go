@@ -1,9 +1,6 @@
 package grpc
 
 import (
-	"common/mw/logging"
-	panicInterceptor "common/mw/panic"
-	"common/mw/validation"
 	"context"
 	"flag"
 	"net"
@@ -14,6 +11,9 @@ import (
 	"xm/company/internal/pkg/services"
 	kafkaNotification "xm/company/internal/pkg/services/notifications/kafka"
 	"xm/company/middleware/authorization"
+	"xm/company/middleware/logging"
+	panicInterceptor "xm/company/middleware/panic"
+	"xm/company/middleware/validation"
 	desc "xm/company/pkg/api/company/v1"
 
 	"github.com/IBM/sarama"
